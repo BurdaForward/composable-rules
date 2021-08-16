@@ -1,6 +1,6 @@
 # RULES
 
-This is a small library mainly intended to make rules around deeplink
+This is a small zero-dependency library mainly intended to make rules around deeplink
 manipulation more maintainable, readable and composable(we don't wanna end up
 with 8 nested `if`s).
 
