@@ -1,0 +1,33 @@
+{
+  "name": "rules-package",
+  "version": "1.0.0",
+  "description": "A library for composable rule logic. Easily combine simple rules into more complex ones in a maintainable way using your custom logic and data.",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/burdaforward/rules-package.git"
+  },
+  "keywords": [
+    "rules",
+    "javascript",
+    "business",
+    "logic"
+  ],
+  "author": "BurdaForward",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/burdaforward/rules-package/issues"
+  },
+  "homepage": "https://github.com/burdaforward/rules-package#readme",
+  "devDependencies": {
+    "eslint": "^7.32.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.24.0",
+    "eslint-plugin-prettier": "^3.4.0",
+    "prettier": "^2.3.2"
+  }
+}
