@@ -4,8 +4,9 @@
   "description": "A library for composable rule logic. Easily combine simple rules into more complex ones in a maintainable way using your custom logic and data.",
   "main": "index.js",
   "scripts": {
-    "test": "npm test"
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest src"
   },
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/burdaforward/rules-package.git"
@@ -28,6 +29,7 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.24.0",
     "eslint-plugin-prettier": "^3.4.0",
+    "jest": "^27.0.6",
     "prettier": "^2.3.2"
   }
 }
