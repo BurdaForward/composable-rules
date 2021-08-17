@@ -31,8 +31,8 @@ const { all, run, applyFirst } = require('composable-rules');
 <!-- Browsers that support ESM: unpkg link -->
 <script type="module">
 // import named exports or all as rules
-import { all, run, applyFirst } from 'https://unpkg.com/composable-rules@1.0.0';
-import * as rules from 'https://unpkg.com/composable-rules@1.0.0';
+import { all, run, applyFirst } from 'https://unpkg.com/composable-rules@1.0.0/dist/index.modern.js';
+import * as rules from 'https://unpkg.com/composable-rules@1.0.0/dist/index.modern.js';
 </script>
 
 <!-- or for older browsers, access window.composableRules -->
