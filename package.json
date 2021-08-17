@@ -37,6 +37,7 @@
     "eslint-plugin-import": "^2.24.0",
     "eslint-plugin-prettier": "^3.4.0",
     "jest": "^27.0.6",
+    "microbundle": "^0.13.3",
     "prettier": "^2.3.2"
   }
 }
