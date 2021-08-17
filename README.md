@@ -22,7 +22,7 @@ import rules from 'composable-rules';
 const rules = require('composable-rules');
 
 // Browser that support ESM: unpkg link
-<script type="module" src="https://unpkg.com/composable-rules@1.0.0/dist/index.modern.js"></script>
+<script type="module" src="https://unpkg.com/composable-rules@1.0.0"></script>
 // or for older browser (window global)
 <script src="https://unpkg.com/composable-rules@1.0.0/dist/index.umd.js"></script>
 ```
