@@ -5,13 +5,10 @@
   "main": "./dist/index.cjs",
   "unpkg": "./dist/index.umd.js",
   "module": "./dist/index.module.js",
-  "exports": {
-    "require": "./dist/index.cjs",
-    "default": "./dist/index.modern.js"
-  },
   "scripts": {
     "build": "microbundle src/index.js",
-    "test": "NODE_OPTIONS=--experimental-vm-modules jest src"
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest src",
+    "prepublishOnly": "npm run build"
   },
   "files": [
     "dist/"
