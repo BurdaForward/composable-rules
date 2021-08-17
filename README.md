@@ -4,6 +4,29 @@ This is a small zero-dependency library mainly intended to make rules around dee
 manipulation more maintainable, readable and composable(we don't wanna end up
 with 8 nested `if`s).
 
+## Using the package
+
+Make sure the package is installed.
+
+```sh
+npm i -S composable-rules
+```
+
+Then import the package in you code depending on whether you use ES Modules, NodeJs require, or Browser scripts.
+
+```js
+// ESM
+import rules from 'composable-rules';
+
+// NodeJS
+const rules = require('composable-rules');
+
+// Browser that support ESM: unpkg link
+<script type="module" src="https://unpkg.com/composable-rules@1.0.0/dist/index.modern.js"></script>
+// or for older browser (window global)
+<script src="https://unpkg.com/composable-rules@1.0.0/dist/index.umd.js"></script>
+```
+
 ## API
 
 **Matchers**
@@ -15,7 +38,7 @@ with 8 nested `if`s).
 
 **Combining and enhancing rules**
 - `injectFacts`: Takes a function and a `rule`. The function is passed the `facts` and can return a new transformed version of `facts`(should copy instead of mutate). This is useful for passing, that are specific to one rule only.
-- `transformOutput`: Takes a function and a `rule`. If the rules `matcher` matches, then the function is called with the output of the rule's `action`. This is useful for modying(immtuable!) an action's return value on a higher level.
+- `transformOutput`: Takes a function and a `rule`. If the rules `matcher` matches, then the function is called with the output of the rules `action`. This is useful for modying(immtuable!) an action''s return value on a higher level.
 - `applyIf`: Checks if the passed matcher matches before running the rule. Takes a `matcher` function and a `rule` and runs only that rule when the matcher matches in addition to the matcher the rule already has. The rule is then run and the `action`'s value is returned.
 - `applyAll`: Takes `rules` and combines a them so that when run all supplied rules will be run in order for those whose matcher returns `true`. It returns the modified value, in our case the modified URL.
 - `applyFirst`: Takes `rules` and combines a them so that when run, only the first supplied rule will be run whose matcher returns `true`. It returns the modified value, in our case the modified URL.
