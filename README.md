@@ -1,4 +1,4 @@
-# RULES
+# Composable rules
 
 This is a small zero-dependency library mainly intended to make rules around deeplink
 manipulation more maintainable, readable and composable(we don't wanna end up
@@ -12,20 +12,35 @@ Make sure the package is installed.
 npm i -S composable-rules
 ```
 
-Then import the package in you code depending on whether you use ES Modules, NodeJs require, or Browser scripts.
+Then import the package in your code depending on whether you use ES Modules, NodeJs require, or Browser scripts.
 
+### ES Modules
 ```js
-// ESM
-import rules from 'composable-rules';
-
-// NodeJS
+// import named exports or all as rules
+import { all, run, applyFirst } from 'composable-rules';
+import * as rules from 'composable-rules';
+```
+### NodeJS
+```js
+// import all as rules or descructure the exports
 const rules = require('composable-rules');
+const { all, run, applyFirst } = require('composable-rules');
+```
+### Browser
+```html
+<!-- Browsers that support ESM: unpkg link -->
+<script type="module">
+// import named exports or all as rules
+import { all, run, applyFirst } from 'https://unpkg.com/composable-rules@1.0.0';
+import * as rules from 'https://unpkg.com/composable-rules@1.0.0';
+</script>
 
-// Browser that support ESM: unpkg link
-<script type="module" src="https://unpkg.com/composable-rules@1.0.0"></script>
-// or for older browser (window global)
+<!-- or for older browsers, access window.composableRules -->
 <script src="https://unpkg.com/composable-rules@1.0.0/dist/index.umd.js"></script>
 ```
+
+## Examples
+...
 
 ## API
 
