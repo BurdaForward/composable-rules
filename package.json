@@ -1,6 +1,6 @@
 {
-  "name": "composable-rules",
-  "version": "1.0.0",
+  "name": "@burdaforward/composable-rules",
+  "version": "0.1.0",
   "description": "A library for composable rule logic. Easily combine simple rules into more complex ones in a maintainable way using your custom logic and data.",
   "main": "./dist/index.cjs",
   "unpkg": "./dist/index.umd.js",
