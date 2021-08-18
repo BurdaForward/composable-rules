@@ -1,16 +1,82 @@
 # Composable rules
 
-This is a small zero-dependency library mainly intended to make rules around deeplink
-manipulation more maintainable, readable and composable(we don't wanna end up
-with 8 nested `if`s).
+Imagine you need to write rules to modify some data based on a growing set of
+a growing set of business logic.
+You could write it in vanilla JavaScript but chances are you quickly end up with something like this:
+
+```javascript
+if(businessCondition1) {
+  if(businessCondition2) {
+    if(businessCondition3) {
+      if(businessCondition3) {
+        if(businessCondition4) {
+           // do something
+           // KA-ME-HA-ME-HA of death
+        }
+      }
+    }
+  }
+}
+```
+
+![kamehameha](https://media1.giphy.com/media/oTjoawKEq3wYD5fKEh/giphy.gif)
+
+This is a small zero-dependency library created to write rule logic
+to manipulate data that's much more maintainable, readable, composable and reusable
+than writing plain `if/else` logic.
+
+## Basics
+
+The basic structure of a rule the following:
+
+```javascript
+const myRule = {
+  // a matcher is a function to check whether the action should be run
+  matcher: (facts, previousValue) => true || false,
+  // if the matcher returns true, run the action getting facts and the previous rule's
+  // value. Return a new value which will be passed on to the next rule.
+  action: (facts, url) => {
+    return { value: 'something new' } // return new url object
+  }
+}
+```
+
+**What are facts?** Are is data needed by your rules. `facts` stay the same throughout
+the entire evaluation of the rules. Examples: Config data, the current date or
+data fetched from an API.
+
+**What's the initialValue?** In the end your rules are there to evaluate logic
+and produce a value in the end. The `initialValue` is what gets returned if no
+rule is run because the `matcher` returns false. A default value if you will,
+similar to the last argument of [`Array.prototype.reduce()`](https://developer.mozilla.org/de/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce).
 
 ## Examples
 
+Using rules always involves three steps:
+1. **Defining matchers:** To check whether certain rules should be run or not.
+2. **Defining actions:** Rules use `matcher`s to see if their `action` should be run. The action returns a new value
+which is passed on to the next rule. If the matcher doesn't match the `previousValue` is passed on instead. Simple rules can
+be combined into more complex rules using function like `applyFirst` or `applyAll`
+3. **Evaluate your rules:** Use the `run` or `detailedRun` function to execute your rules for
+a given `facts` object and `initialValue`. The return value will the valueare producing.
+
+
 ### A simple example
 
-some dummy example with fruits
+Let's start with a very simple example. Your product owner wants you to create offerings
+of fruit which follows certain rules. The rules are based on seasonality, what's in stock
+and how tropical the fruit are. In the end, the logic should produce and array
+of offerings.
 
-### A real life example
+```javscript
+import { applyFirst, or, run } from '@burdaforward/composable-rules';
+```
+
+Even though this example was simple and involved fruits, you'll see that you
+can use this library for any sort of logic no matter what it is. Next up is
+real-lift example.
+
+### A real-life example from BurdaForward
 
 Rules consists of `matcher`s and `action`s. The `action` will only get executed
 when the `matcher` matches.
@@ -24,7 +90,7 @@ const isSaturnHost = (facts, url) => url.hostname === 'mediamarkt.de';
 const hasRewriteParam = (facts, url) => url.hasQueryParam('rewrite');
 
 const myRule = {
-  // use `all` to combine functions requiring both to return `true`
+  // use `all` to combine functions requiring both matchers to return `true`
   matcher: all([isSaturnHost, hasRewriteParam]),
   // if matcher matches, rewrite to saturn.de, `url` will be url object
   // and contains modifications made so far by previous rules
@@ -78,6 +144,19 @@ const combinedRule  = applyFirst([
 ```
 
 url manipulation @BF
+
+#### A note on testing
+
+Since rules are just simple input/output logic, testing them is a breeze. At
+BurdaForward set of hundreds of rules has 100% tests coverage and testing is
+quick and easy.
+
+```javascript
+test('this rule does what I want', () => {
+  const output = run(myRule, facts, initialValue);
+  expect(output).toEqual(expectedOutput)
+})
+```
 
 ## Installing and importing
 
