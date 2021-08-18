@@ -5,7 +5,10 @@
   "main": "./dist/index.cjs",
   "unpkg": "./dist/index.umd.js",
   "module": "./dist/index.module.js",
-  "exports": "./dist/index.modern.js",
+  "exports": {
+    "require": "./dist/index.cjs",
+    "default": "./dist/index.modern.js"
+  },
   "scripts": {
     "build": "microbundle src/index.js",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest src",
@@ -38,7 +41,7 @@
     "eslint-plugin-import": "^2.24.0",
     "eslint-plugin-prettier": "^3.4.0",
     "jest": "^27.0.6",
-    "microbundle": "^0.13.3",
+    "microbundle": "0.13.1",
     "prettier": "^2.3.2"
   }
 }
