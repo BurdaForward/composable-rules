@@ -69,7 +69,69 @@ and how tropical the fruit are. In the end, the logic should produce and array
 of offerings.
 
 ```javascript
-import { applyFirst, or, run } from '@burdaforward/composable-rules';
+import { applyAll, one, run } from '@burdaforward/composable-rules';
+
+const fruitsInStock = [
+  { type: 'apple', price: 1 },
+  { type: 'pineapple', price: 3 },
+  { type: 'melon', price: 4 },
+  { type: 'coconut', price: 2 },
+  { type: 'orange', price: 1 },
+];
+
+// 1. MATCHERS: define matcher functions
+
+const isApple = fruit => fruit.type === 'apple';
+const isPineapple = fruit => fruit.type === 'pineapple';
+const isCoconut = fruit => fruit.type === 'coconut';
+
+const hasTropicalFruits = (facts, specialOffers) =>
+  facts.fruitsInStock.some(isPineapple) && facts.fruitsInStock.some(isCoconut);
+
+const moreThan100Apples = (facts, specialOffers) =>
+  facts.fruitsInStock.filter(isApple).length > 100;
+
+const isJuly = (facts, specialOffers) => facts.currentDate.getMonth() === 6;
+
+const isAugust = (facts, specialOffers) => facts.currentDate.getMonth() === 7;
+
+// 2. RULES define your rules
+
+// Rule 1: if there are more than 100 apples in stock, create a special offer selling 10 apples at 50% less.
+const discountApplesRule = {
+  matcher: moreThan100Apples,
+  action: (facts, specialOffers) => [
+    ...specialOffers,
+    { specialOffer: 'Get 100 apples now for only 50$!' },
+  ],
+};
+
+// Rule 2: in july or august, raise prices for lemons (lemonade season)
+const lemonadeRule = {
+  matcher: one([isJuly, isAugust]),
+  action: (facts, specialOffers) => [
+    ...specialOffers,
+    { specialOffer: 'Get your lemonade' },
+  ],
+};
+
+// Rule 3: if melons, pineapples and coconuts are in stock, offer Pina Colada
+const tropicalRule = {
+  matcher: hasTropicalFruits,
+  action: (facts, specialOffers) => [
+    ...specialOffers,
+    { specialOffer: 'Aloha Tropical Breeze! Get our Pina Colada now!' },
+  ],
+};
+
+// combine all rules together
+const fruitRule = applyAll([discountApplesRule, lemonadeRule, tropicalRule]);
+
+// 3. run your rules like this:
+const facts = { fruitsInStock, currentDate: new Date() };
+const specialOffers = run(fruitRule, facts, []);
+console.log(specialOffers)
+// returns [{ specialOffer: "Get your lemonade!" }, { specialOffer: "Aloha. Tropical triple!" }]
 ```
 
 Even though this example was simple and involved fruits, you'll see that you
