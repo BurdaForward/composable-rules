@@ -9,7 +9,7 @@ with 8 nested `if`s).
 Make sure the package is installed.
 
 ```sh
-npm i -S composable-rules
+npm i -S @burdaforward/composable-rules
 ```
 
 Then import the package in your code depending on whether you use ES Modules, NodeJs require, or Browser scripts.
@@ -17,26 +17,26 @@ Then import the package in your code depending on whether you use ES Modules, No
 ### ES Modules
 ```js
 // import named exports or all as rules
-import { all, run, applyFirst } from 'composable-rules';
-import * as rules from 'composable-rules';
+import { all, run, applyFirst } from '@burdaforward/composable-rules';
+import * as rules from '@burdaforward/composable-rules';
 ```
 ### NodeJS
 ```js
 // import all as rules or descructure the exports
-const rules = require('composable-rules');
-const { all, run, applyFirst } = require('composable-rules');
+const rules = require('@burdaforward/composable-rules');
+const { all, run, applyFirst } = require('@burdaforward/composable-rules');
 ```
 ### Browser
 ```html
 <!-- Browsers that support ESM: unpkg link -->
 <script type="module">
 // import named exports or all as rules
-import { all, run, applyFirst } from 'https://unpkg.com/composable-rules@1.0.0/dist/index.modern.js';
-import * as rules from 'https://unpkg.com/composable-rules@1.0.0/dist/index.modern.js';
+import { all, run, applyFirst } from 'https://unpkg.com/@burdaforward/composable-rules@1.0.0/dist/index.modern.js';
+import * as rules from 'https://unpkg.com/@burdaforward/composable-rules@1.0.0/dist/index.modern.js';
 </script>
 
 <!-- or for older browsers, access window.composableRules -->
-<script src="https://unpkg.com/composable-rules@1.0.0/dist/index.umd.js"></script>
+<script src="https://unpkg.com/@burdaforward/composable-rules@1.0.0/dist/index.umd.js"></script>
 ```
 
 ## Examples
@@ -75,7 +75,7 @@ when the `matcher` matches.
 
 ```js
 const nurl = require('nurl');
-const { all, applyAll, applyFirst, run} = require('./rules');
+const { all, applyAll, applyFirst, run} = require('@burdaforward/composable-rules');
 
 // MATCHERS
 const isSaturnHost = (facts, url) => url.hostname === 'mediamarkt.de';
