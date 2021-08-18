@@ -34,7 +34,7 @@ const myRule = {
 }
 ```
 
-**Note:** To simplify url manipulation we use the [`nurl`](https://github.com/codeinthehole/nurl), which is easier
+**Note:** To simplify url manipulation we use the [`nurl`](https://github.com/codeinthehole/nurl) library, which is easier
 to use than NodeJS's `url` module and has an immutable URL type.
 
 Then run the rules like this
