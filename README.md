@@ -131,7 +131,7 @@ const fruitRule = applyAll([discountApplesRule, lemonadeRule, tropicalRule]);
 const facts = { fruitsInStock, currentDate: new Date() };
 const specialOffers = run(fruitRule, facts, []);
 console.log(specialOffers)
-// returns [{ specialOffer: "Get your lemonade!" }, { specialOffer: "Aloha. Tropical triple!" }]
+// logs [{ specialOffer: "Get your lemonade!" }, { specialOffer: "Aloha. Tropical triple!" }]
 ```
 
 Even though this example was simple and involved fruits, you'll see that you
@@ -140,15 +140,24 @@ real-lift example.
 
 ### A real-life example from BurdaForward
 
-Rules consists of `matcher`s and `action`s. The `action` will only get executed
-when the `matcher` matches.
+The following is an example of a URL rewrite engine, which uses this library
+to rewrite urls according to a given set of rules. Here's a small peek into
+how this can be done. A URL is passed into the rules and manipulated according to
+certain logic. Each manipulation can be implemented as a rule and rules can then
+be composed into more complex rules until a whole rewrite engine is built.
+
+**Note:** To simplify url manipulation we use the [`nurl`](https://github.com/codeinthehole/nurl) library, which is easier
+to use than NodeJS's `url` module and has an immutable URL type.
+
+Then run the rules like this
 
 ```javascript
-const nurl = require('nurl');
-const { all, applyAll, applyFirst, run} = require('@burdaforward/composable-rules');
+
+import nurl from 'nurl';
+import { all, applyAll, applyFirst, run} from '@burdaforward/composable-rules';
 
 // MATCHERS
-const isSaturnHost = (facts, url) => url.hostname === 'mediamarkt.de';
+const isSaturnHost = (facts, url) => url.hostname === 'saturn.de';
 const hasRewriteParam = (facts, url) => url.hasQueryParam('rewrite');
 
 const myRule = {
@@ -160,18 +169,12 @@ const myRule = {
     return url.setHostname('saturn.de') // return new url object
   }
 }
-```
 
-**Note:** To simplify url manipulation we use the [`nurl`](https://github.com/codeinthehole/nurl) library, which is easier
-to use than NodeJS's `url` module and has an immutable URL type.
 
-Then run the rules like this
-
-```javascript
 // arbitrary data that is passed to the matchers and actions
 const deeplink = nurl.parse('https://someurl.com/iphone8?param=value');
 const facts = {
-  ...,
+  config: { ... },
   url: deeplink
 };
 
@@ -183,7 +186,7 @@ const manipulatedUrl = run(
   combinedRule,
   facts,
   deeplink // the initial url
-  );
+);
 
 // OR combine rules, checking for the first match and ignoring the rest
 // this only creates a new rule and doesn't run the rule yet
@@ -193,19 +196,17 @@ const manipulatedUrl = run(
   combinedRule,
   facts,
   deeplink
-  );
+);
 
 
 // extra facts can be injected locally scoped to a rule like this:
-const addSpecificFacts = (facts) => ({ ...facts, specificData: { a: 42 } })
-const combinedRule  = applyFirst([
-  injectFacts(addSpecificFacts, myRule), // this rule will have access to a transformed facts object
-  anotherRule
-]);
+<!--const addSpecificFacts = (facts) => ({ ...facts, specificData: { a: 42 } })-->
+<!--const combinedRule  = applyFirst([-->
+  <!--injectFacts(addSpecificFacts, myRule), // this rule will have access to a transformed facts object-->
+  <!--anotherRule-->
+<!--]);-->
 // run the rule on some data
 ```
-
-url manipulation @BF
 
 #### A note on testing
 
@@ -285,4 +286,5 @@ import * as rules from 'https://unpkg.com/@burdaforward/composable-rules@1.0.0/d
 Please open an issue if you run into problems, have questions, or feature requests.
 For smaller fixes feel free to submit a pull request. For larger things please
 open an issue first, let's discuss it to make sure it fits the package so no work is wasted.
+
 
