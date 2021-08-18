@@ -68,7 +68,7 @@ of fruit which follows certain rules. The rules are based on seasonality, what's
 and how tropical the fruit are. In the end, the logic should produce and array
 of offerings.
 
-```javscript
+```javascript
 import { applyFirst, or, run } from '@burdaforward/composable-rules';
 ```
 
