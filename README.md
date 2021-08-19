@@ -64,7 +64,7 @@ a given `facts` object and `initialValue`. The return value will be the value be
 
 Let's start with a very simple example. Your product owner wants you to create special offers
 for fruit, which follows certain rules. The rules are based on seasonality, what's in stock
-and how tropical the fruits are. In the end, the logic should produce and array
+and how tropical the fruits are. In the end, the logic should produce and an array
 of special offers.
 
 **Hint:** Rules are meant to be immutable so create new ones instead of trying to change
