@@ -1,15 +1,15 @@
 # Composable rules
 
 Imagine you need to write rules to modify some data based on a growing set of
-a growing set of business logic.
+business logic.
 You could write it in vanilla JavaScript but chances are you quickly end up with something like this:
 
 ```javascript
 if(businessCondition1) {
   if(businessCondition2) {
     if(businessCondition3) {
-      if(businessCondition3) {
-        if(businessCondition4) {
+      if(businessCondition4) {
+        if(businessCondition5) {
            // do something
            // KA-ME-HA-ME-HA of death
         }
@@ -22,8 +22,8 @@ if(businessCondition1) {
 ![kamehameha](https://media1.giphy.com/media/oTjoawKEq3wYD5fKEh/giphy.gif)
 
 This is a small zero-dependency library created to write rule logic
-to manipulate data that's much more maintainable, readable, composable and reusable
-than writing plain `if/else` logic.
+to manipulate data that's much more maintainable, readable, composable, reusable
+and testable than writing plain `if/else` logic.
 
 ## Basics
 
@@ -36,12 +36,12 @@ const myRule = {
   // if the matcher returns true, run the action getting facts and the previous rule's
   // value. Return a new value which will be passed on to the next rule.
   action: (facts, url) => {
-    return { value: 'something new' } // return new url object
+    return { value: 'something new' } // return new data
   }
 }
 ```
 
-**What are facts?** Are is data needed by your rules. `facts` stay the same throughout
+**What are facts?** Are data needed by your rules. `facts` stay the same throughout
 the entire evaluation of the rules. Examples: Config data, the current date or
 data fetched from an API.
 
@@ -54,19 +54,23 @@ similar to the last argument of [`Array.prototype.reduce()`](https://developer.m
 
 Using rules always involves three steps:
 1. **Defining matchers:** To check whether certain rules should be run or not.
-2. **Defining actions:** Rules use `matcher`s to see if their `action` should be run. The action returns a new value
-which is passed on to the next rule. If the matcher doesn't match the `previousValue` is passed on instead. Simple rules can
+2. **Defining rules:** Rules use `matcher`s to see if their `action` should be run. The action returns a new value
+which is passed on to the next rule. If the matcher doesn't match, the `previousValue` is passed on instead. Simple rules can
 be combined into more complex rules using function like `applyFirst` or `applyAll`
 3. **Evaluate your rules:** Use the `run` or `detailedRun` function to execute your rules for
 a given `facts` object and `initialValue`. The return value will the valueare producing.
 
-
 ### A simple example
 
-Let's start with a very simple example. Your product owner wants you to create offerings
-of fruit which follows certain rules. The rules are based on seasonality, what's in stock
-and how tropical the fruit are. In the end, the logic should produce and array
-of offerings.
+Let's start with a very simple example. Your product owner wants you to create special offers
+for fruit, which follows certain rules. The rules are based on seasonality, what's in stock
+and how tropical the fruits are. In the end, the logic should produce and array
+of special offers.
+
+**Hint:** Rules are meant to be immutable so create new ones instead of trying to change
+existing ones. Running the rules is always _synchronous_, so no async code in
+the rules. If you need to fetch data asynchronously, fetch it beforehand and pass
+it to `run`/`detailedRun` as `facts` or `initialValue`.
 
 ```javascript
 import { applyAll, one, run } from '@burdaforward/composable-rules';
@@ -97,7 +101,7 @@ const isAugust = (facts, specialOffers) => facts.currentDate.getMonth() === 7;
 
 // 2. RULES define your rules
 
-// Rule 1: if there are more than 100 apples in stock, create a special offer selling 10 apples at 50% less.
+// Rule 1: if there are more than 100 apples in stock, create a special offer selling 100 apples for 50$.
 const discountApplesRule = {
   matcher: moreThan100Apples,
   action: (facts, specialOffers) => [
@@ -108,7 +112,7 @@ const discountApplesRule = {
 
 // Rule 2: in july or august, raise prices for lemons (lemonade season)
 const lemonadeRule = {
-  matcher: one([isJuly, isAugust]),
+  matcher: one([isJuly, isAugust]), // combine two matchers requiring one of the to be true
   action: (facts, specialOffers) => [
     ...specialOffers,
     { specialOffer: 'Get your lemonade' },
@@ -149,10 +153,9 @@ be composed into more complex rules until a whole rewrite engine is built.
 **Note:** To simplify url manipulation we use the [`nurl`](https://github.com/codeinthehole/nurl) library, which is easier
 to use than NodeJS's `url` module and has an immutable URL type.
 
-Then run the rules like this
+Then define and run the rules like this
 
 ```javascript
-
 import nurl from 'nurl';
 import { all, applyAll, applyFirst, run} from '@burdaforward/composable-rules';
 
@@ -191,7 +194,7 @@ const manipulatedUrl = run(
 // OR combine rules, checking for the first match and ignoring the rest
 // this only creates a new rule and doesn't run the rule yet
 const combinedRule  = applyFirst([myRule, anotherRule]);
-// run the rule on some data
+// run the rule on some data, will return the rewritten URL
 const manipulatedUrl = run(
   combinedRule,
   facts,
@@ -199,13 +202,12 @@ const manipulatedUrl = run(
 );
 
 
-// extra facts can be injected locally scoped to a rule like this:
-<!--const addSpecificFacts = (facts) => ({ ...facts, specificData: { a: 42 } })-->
-<!--const combinedRule  = applyFirst([-->
-  <!--injectFacts(addSpecificFacts, myRule), // this rule will have access to a transformed facts object-->
-  <!--anotherRule-->
-<!--]);-->
-// run the rule on some data
+// BONUS: extra facts can be injected locally scoped to a rule like this:
+const addSpecificFacts = (facts) => ({ ...facts, specificData: { a: 42 } })
+const combinedRule  = applyFirst([
+  injectFacts(addSpecificFacts, myRule), // this rule will have access to a transformed facts object
+  anotherRule
+]);
 ```
 
 #### A note on testing
