@@ -27,7 +27,7 @@ and testable than writing plain `if/else` logic.
 
 ## Basics
 
-The basic structure of a rule the following:
+The basic structure of a rule is the following:
 
 ```javascript
 const myRule = {
@@ -46,7 +46,7 @@ the entire evaluation of the rules. Examples: Config data, the current date or
 data fetched from an API.
 
 **What's the initialValue?** In the end your rules are there to evaluate logic
-and produce a value in the end. The `initialValue` is what gets returned if no
+and produce a value. The `initialValue` is what gets returned if no
 rule is run because the `matcher` returns false. A default value if you will,
 similar to the last argument of [`Array.prototype.reduce()`](https://developer.mozilla.org/de/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce).
 
@@ -58,7 +58,7 @@ Using rules always involves three steps:
 which is passed on to the next rule. If the matcher doesn't match, the `previousValue` is passed on instead. Simple rules can
 be combined into more complex rules using function like `applyFirst` or `applyAll`
 3. **Evaluate your rules:** Use the `run` or `detailedRun` function to execute your rules for
-a given `facts` object and `initialValue`. The return value will the valueare producing.
+a given `facts` object and `initialValue`. The return value will be the value being producing by the rules.
 
 ### A simple example
 
@@ -139,8 +139,8 @@ console.log(specialOffers)
 ```
 
 Even though this example was simple and involved fruits, you'll see that you
-can use this library for any sort of logic no matter what it is. Next up is
-real-lift example.
+can use this library for any sort of logic no matter what it is. Next up is a
+real-life example.
 
 ### A real-life example from BurdaForward
 
