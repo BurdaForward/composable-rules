@@ -160,16 +160,16 @@ import nurl from 'nurl';
 import { all, applyAll, applyFirst, run} from '@burdaforward/composable-rules';
 
 // MATCHERS
-const isSaturnHost = (facts, url) => url.hostname === 'saturn.de';
+const isChipHost = (facts, url) => url.hostname === 'chip.de';
 const hasRewriteParam = (facts, url) => url.hasQueryParam('rewrite');
 
 const myRule = {
   // use `all` to combine functions requiring both matchers to return `true`
-  matcher: all([isSaturnHost, hasRewriteParam]),
-  // if matcher matches, rewrite to saturn.de, `url` will be url object
+  matcher: all([isChipHost, hasRewriteParam]),
+  // if matcher matches, rewrite to chip.de, `url` will be url object
   // and contains modifications made so far by previous rules
   action: (facts, url) => {
-    return url.setHostname('saturn.de') // return new url object
+    return url.setHostname('chip.de') // return new url object
   }
 }
 
