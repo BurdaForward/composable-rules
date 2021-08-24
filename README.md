@@ -213,7 +213,7 @@ const combinedRule  = applyFirst([
 #### A note on testing
 
 Since rules are just simple input/output logic, testing them is a breeze. At
-BurdaForward set of hundreds of rules has 100% tests coverage and testing is
+BurdaForward, a set of hundreds of rules has 100% tests coverage and testing is
 quick and easy.
 
 ```javascript
@@ -266,18 +266,18 @@ import * as rules from 'https://unpkg.com/@burdaforward/composable-rules@1.0.0/d
 
 **Matchers**
 
-- `not`: negates a matchers.
-- `always`: A matchers that always matches.
-- `all`: Matcher combinator which takes a list of matchers. It is true when all passed matchers are true, false otherwise.
-- `one`: Matcher combinator which takes a list of matchers. It is only true when at least one of the passed matchers is true, false otherwise.
+- `not`: negates a matcher.
+- `always`: A matcher that always matches.
+- `all`: Matcher combinator which takes an array of matchers. It is true when all passed matchers are true, false otherwise.
+- `one`: Matcher combinator which takes an array of matchers. It is only true when at least one of the passed matchers is true, false otherwise.
 
 **Combining and enhancing rules**
 - `injectFacts`: Takes a function and a `rule`. The function is passed the `facts` and can return a new transformed version of `facts`(should copy instead of mutate). This is useful for passing, that are specific to one rule only.
-- `transformOutput`: Takes a function and a `rule`. If the rules `matcher` matches, then the function is called with the output of the rules `action`. This is useful for modying(immtuable!) an action''s return value on a higher level.
+- `transformOutput`: Takes a function and a `rule`. If the rules `matcher` matches, then the function is called with the output of the rules `action`. This is useful for modifying(immutable!) an action's return value on a higher level.
 - `applyIf`: Checks if the passed matcher matches before running the rule. Takes a `matcher` function and a `rule` and runs only that rule when the matcher matches in addition to the matcher the rule already has. The rule is then run and the `action`'s value is returned.
-- `applyAll`: Takes `rules` and combines a them so that when run all supplied rules will be run in order for those whose matcher returns `true`. It returns the modified value, in our case the modified URL.
-- `applyFirst`: Takes `rules` and combines a them so that when run, only the first supplied rule will be run whose matcher returns `true`. It returns the modified value, in our case the modified URL.
-- `applyChain`: Takes `rules` and combines a them so that when run, only rules will be run as long as their matcher returns `true`. As soon as a rule does not match it it stops. It returns the modified value, in our case the modified URL.
+- `applyAll`: Takes `rules` and combines them so that when run all supplied rules will be run in order for those whose matcher returns `true`. It returns the modified value, in our case the modified URL.
+- `applyFirst`: Takes `rules` and combines them so that when run, only the first supplied rule will be run whose matcher returns `true`. It returns the modified value, in our case the modified URL.
+- `applyChain`: Takes `rules` and combines them so that when run, only rules will be run as long as their matcher returns `true`. As soon as a rule does not match it it stops. It returns the modified value, in our case the modified URL.
 
 **Running rules**
 - `run`: Takes a `rule`, `facts` and an intial `value` and runs the rule. It returns the modified value, in our case the modified URL. If no rule matches the retuned value is the original input value.
