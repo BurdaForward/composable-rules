@@ -77,6 +77,15 @@ describe("injectFacts", () => {
     const result = run(modifiedRule, { originalProp: "Old" }, "");
     expect(result).toBe("New!");
   });
+  test("also works when combined with transformOutput", () => {
+    const modifiedRule = injectFacts(addProp, applyAll([rule]));
+    const transformedRule = transformOutput(
+      (value) => ({ transformed: value }),
+      modifiedRule
+    );
+    const result = run(transformedRule, { originalProp: "Old" }, "");
+    expect(result).toEqual({ transformed: "New!" });
+  });
 });
 
 describe("applyAll", () => {
