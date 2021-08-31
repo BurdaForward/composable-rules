@@ -81,60 +81,43 @@ const applyChain = (rules) => ({
  *
  */
 
-// function which processes our recursive function iteratively
-const trampoline =
-  (fn) =>
-  (...args) => {
-    let result = fn(...args);
-    while (typeof result === "function") {
-      result = result();
-    }
-    return result;
-  };
-
 // like run() but keeps track of whether a matcher of a rule passed
 // so we can stop execution early when using "firstMatch" rules
 // for "injected" or "transformed" rules: they count as matched when the contained rule matches
 // for "all" or "first" rules: at least one matcher needs to have matched
 // for simple rules the matcher needs to have matched
-const runHelpRecSafe = (rule, facts, state) => {
+const runHelp = (rule, facts, state) => {
   switch (rule.type) {
     case "injected":
-      return () => runHelpRecSafe(rule.childRule, rule.mapper(facts), state);
+      return runHelp(rule.childRule, rule.mapper(facts), state);
     case "transformed": {
-      return () => {
-        const { foundMatch, value } = runHelpRecSafe(rule.rule, facts, state);
-        return {
-          foundMatch,
-          value: foundMatch ? rule.transformer(value) : value,
-        };
+      const { foundMatch, value } = runHelp(rule.rule, facts, state);
+      return {
+        foundMatch,
+        value: foundMatch ? rule.transformer(value) : value,
       };
     }
     case "if": {
-      return () => {
-        const subRule = rule.rule;
-        return rule.matcher(facts, state.value)
-          ? runHelpRecSafe(subRule, facts, state)
-          : { foundMatch: false, value: state.value };
-      };
+      const subRule = rule.rule;
+      return rule.matcher(facts, state.value)
+        ? runHelp(subRule, facts, state)
+        : { foundMatch: false, value: state.value };
     }
     case "all":
       // eslint-disable-next-line no-use-before-define
-      return () => runAllMatchingRules(rule.rules, facts, state);
+      return runAllMatchingRules(rule.rules, facts, state);
     case "first":
       // eslint-disable-next-line no-use-before-define
-      return () => runFirstMatchingRule(rule.rules, facts, state);
+      return runFirstMatchingRule(rule.rules, facts, state);
     case "chain":
       // eslint-disable-next-line no-use-before-define
-      return () => runChainOfRules(rule.rules, facts, state);
+      return runChainOfRules(rule.rules, facts, state);
     default:
       return rule.matcher(facts, state.value)
         ? { foundMatch: true, value: rule.action(facts, state.value) }
         : { foundMatch: false, value: state.value };
   }
 };
-
-const runHelp = trampoline(runHelpRecSafe);
 
 const runAllMatchingRules = (rules, facts, state) => {
   const reducer = (currentState, currentRule) => {
