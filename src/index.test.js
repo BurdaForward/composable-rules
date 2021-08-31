@@ -77,6 +77,15 @@ describe("injectFacts", () => {
     const result = run(modifiedRule, { originalProp: "Old" }, "");
     expect(result).toBe("New!");
   });
+  test("also works when combined with transformOutput", () => {
+    const modifiedRule = injectFacts(addProp, applyAll([rule]));
+    const transformedRule = transformOutput(
+      (value) => ({ transformed: value }),
+      modifiedRule
+    );
+    const result = run(transformedRule, { originalProp: "Old" }, "");
+    expect(result).toEqual({ transformed: "New!" });
+  });
 });
 
 describe("applyAll", () => {
@@ -304,6 +313,7 @@ describe("applyIf", () => {
     const result1 = run(applyIf(passMatcher, rule))(null, "i am ");
     const result2 = run(rule)(null, "i am ");
     expect(result1).toEqual(result2);
+    expect(result1).toEqual("i am running");
   });
 
   test("behaves the same as running the rule by itself if the outer matcher is false", () => {
@@ -311,6 +321,7 @@ describe("applyIf", () => {
     const result1 = run(applyIf(passMatcher, rule))(null, "i am ");
     const result2 = run(rule)(null, "i am ");
     expect(result1).toEqual(result2);
+    expect(result1).toEqual("i am ");
   });
 });
 
