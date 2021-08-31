@@ -244,7 +244,7 @@ import * as rules from '@burdaforward/composable-rules';
 ### NodeJS
 
 ```javascript
-// import all as rules or descructure the exports
+// import all as rules or destructure the exports
 const rules = require('@burdaforward/composable-rules');
 const { all, run, applyFirst } = require('@burdaforward/composable-rules');
 ```
