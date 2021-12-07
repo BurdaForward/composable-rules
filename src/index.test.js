@@ -65,16 +65,16 @@ describe("injectFacts", () => {
 
   test("injects facts into the rule", () => {
     const modifiedRule = injectFacts(addProp, rule);
-    const result = run(modifiedRule, { originalProp: "Old" }, "");
+    const [, result] = run(modifiedRule, { originalProp: "Old" }, "");
     expect(result).toBe("New!");
   });
   test("injected facts are not accessible on original rule", () => {
-    const result = run(rule, { originalProp: "Old" }, "");
+    const [, result] = run(rule, { originalProp: "Old" }, "");
     expect(result).toBe("undefined!");
   });
   test("injected facts are available in child rules", () => {
     const modifiedRule = injectFacts(addProp, applyAll([rule]));
-    const result = run(modifiedRule, { originalProp: "Old" }, "");
+    const [, result] = run(modifiedRule, { originalProp: "Old" }, "");
     expect(result).toBe("New!");
   });
   test("also works when combined with transformOutput", () => {
@@ -83,7 +83,7 @@ describe("injectFacts", () => {
       (value) => ({ transformed: value }),
       modifiedRule
     );
-    const result = run(transformedRule, { originalProp: "Old" }, "");
+    const [, result] = run(transformedRule, { originalProp: "Old" }, "");
     expect(result).toEqual({ transformed: "New!" });
   });
 });
@@ -100,7 +100,7 @@ describe("applyAll", () => {
   };
 
   test("builds up a value by applying actions when matchers match", () => {
-    const result = run(applyAll([matchingRule, matchingRule]))(
+    const [, result] = run(applyAll([matchingRule, matchingRule]))(
       { number: 2 },
       "Initial."
     );
@@ -108,7 +108,7 @@ describe("applyAll", () => {
   });
 
   test("won't execute rules that don't match", () => {
-    const result = run(applyAll([matchingRule, missingRule]))(
+    const [, result] = run(applyAll([matchingRule, missingRule]))(
       { number: 2 },
       "Initial."
     );
@@ -116,7 +116,7 @@ describe("applyAll", () => {
   });
 
   test("returns the inital value if nothing matches", () => {
-    const result = run(applyAll([missingRule, missingRule]))(
+    const [, result] = run(applyAll([missingRule, missingRule]))(
       { number: 2 },
       "Initial."
     );
@@ -128,10 +128,9 @@ describe("applyAll", () => {
       matcher: (facts, number) => number === 2,
       action: (facts, number) => number + 1,
     };
-    const result = run(applyAll([incrementRule, incrementRule, incrementRule]))(
-      null,
-      2
-    );
+    const [, result] = run(
+      applyAll([incrementRule, incrementRule, incrementRule])
+    )(null, 2);
     expect(result).toBe(3);
   });
 });
@@ -148,7 +147,7 @@ describe("applyFirst", () => {
   };
 
   test("won't execute second rule if first one matched", () => {
-    const result = run(applyFirst([matchingRule, matchingRule]))(
+    const [, result] = run(applyFirst([matchingRule, matchingRule]))(
       { number: 2 },
       "Initial."
     );
@@ -156,7 +155,7 @@ describe("applyFirst", () => {
   });
 
   test("won't execute first rule if it doesn't match", () => {
-    const result = run(applyFirst([missingRule, matchingRule]))(
+    const [, result] = run(applyFirst([missingRule, matchingRule]))(
       { number: 2 },
       "Initial."
     );
@@ -164,7 +163,7 @@ describe("applyFirst", () => {
   });
 
   test("returns the inital value if no rule matches", () => {
-    const result = run(applyFirst([missingRule, missingRule]))(
+    const [, result] = run(applyFirst([missingRule, missingRule]))(
       { number: 2 },
       "Initial."
     );
@@ -184,7 +183,7 @@ describe("applyChain", () => {
   };
 
   test("will execute second rule if first one matched", () => {
-    const result = run(applyChain([matchingRule, matchingRule]))(
+    const [, result] = run(applyChain([matchingRule, matchingRule]))(
       { number: 2 },
       "Initial."
     );
@@ -192,7 +191,7 @@ describe("applyChain", () => {
   });
 
   test("won't execute second rule if it the first one doesn't match", () => {
-    const result = run(applyChain([missingRule, matchingRule]))(
+    const [, result] = run(applyChain([missingRule, matchingRule]))(
       { number: 2 },
       "Initial."
     );
@@ -200,7 +199,7 @@ describe("applyChain", () => {
   });
 
   test("returns the inital value if no rule matches", () => {
-    const result = run(applyChain([missingRule, missingRule]))(
+    const [, result] = run(applyChain([missingRule, missingRule]))(
       { number: 2 },
       "Initial."
     );
@@ -220,7 +219,7 @@ describe("nested Rules", () => {
       applyAll([makeRule(true, 2), makeRule(false, 3), makeRule(true, 4)]),
       makeRule(true, 5),
     ]);
-    const result = run(rule)(null, []);
+    const [, result] = run(rule)(null, []);
     expect(result).toEqual([2, 4]);
   });
 
@@ -230,7 +229,7 @@ describe("nested Rules", () => {
       applyAll([makeRule(true, 2), makeRule(false, 3), makeRule(false, 4)]),
       makeRule(true, 5),
     ]);
-    const result = run(rule)(null, []);
+    const [, result] = run(rule)(null, []);
     expect(result).toEqual([2]);
   });
 
@@ -240,7 +239,7 @@ describe("nested Rules", () => {
       applyFirst([makeRule(false, 2), makeRule(true, 3), makeRule(true, 4)]),
       makeRule(true, 5),
     ]);
-    const result = run(rule)(null, []);
+    const [, result] = run(rule)(null, []);
     expect(result).toEqual([1, 3, 5]);
   });
 });
@@ -254,14 +253,14 @@ describe("transformOutput", () => {
   test("transforms output if rule matcher matches", () => {
     const rule = makeRule(true, "original");
     const newRule = transformOutput(() => "transformed", rule);
-    const result = run(newRule)(null, []);
+    const [, result] = run(newRule)(null, []);
     expect(result).toEqual("transformed");
   });
 
   test("doesn't transforms output if rule doesn't match", () => {
     const rule = makeRule(false, "original");
     const newRule = transformOutput(() => "transformed", rule);
-    const result = run(newRule)(null, "original");
+    const [, result] = run(newRule)(null, "original");
     expect(result).toEqual("original");
   });
 
@@ -272,7 +271,7 @@ describe("transformOutput", () => {
       transformOutput((val) => val.concat(" transformed "), rule1),
       rule2,
     ]);
-    const result = run(newRule)(null, "");
+    const [, result] = run(newRule)(null, "");
     expect(result).toEqual("original transformed is nice");
   });
 
@@ -283,7 +282,7 @@ describe("transformOutput", () => {
       transformOutput((val) => val.concat(" transformed "), rule1),
       rule2,
     ]);
-    const result = run(newRule)(null, "");
+    const [, result] = run(newRule)(null, "");
     expect(result).toEqual("is nice");
   });
 });
@@ -297,29 +296,29 @@ describe("applyIf", () => {
   test("runs rule only if outer matcher matches", () => {
     const rule = makeRule(true, "running");
     const newRule = applyIf(passMatcher, rule);
-    const result = run(newRule)(null, "i am ");
+    const [, result] = run(newRule)(null, "i am ");
     expect(result).toEqual("i am running");
   });
 
   test("does not run rule if outer matcher doesn't match", () => {
     const rule = makeRule(true, "running");
     const newRule = applyIf(failMatcher, rule);
-    const result = run(newRule)(null, "i am ");
+    const [, result] = run(newRule)(null, "i am ");
     expect(result).toEqual("i am ");
   });
 
   test("behaves the same as running the rule by itself if the outer matcher is true", () => {
     const rule = makeRule(true, "running");
-    const result1 = run(applyIf(passMatcher, rule))(null, "i am ");
-    const result2 = run(rule)(null, "i am ");
+    const [, result1] = run(applyIf(passMatcher, rule))(null, "i am ");
+    const [, result2] = run(rule)(null, "i am ");
     expect(result1).toEqual(result2);
     expect(result1).toEqual("i am running");
   });
 
   test("behaves the same as running the rule by itself if the outer matcher is false", () => {
     const rule = makeRule(false, "running");
-    const result1 = run(applyIf(passMatcher, rule))(null, "i am ");
-    const result2 = run(rule)(null, "i am ");
+    const [, result1] = run(applyIf(passMatcher, rule))(null, "i am ");
+    const [, result2] = run(rule)(null, "i am ");
     expect(result1).toEqual(result2);
     expect(result1).toEqual("i am ");
   });
@@ -331,19 +330,20 @@ describe("detailedRun", () => {
     action: (facts, list) => list.concat(value),
   });
 
-  test("if the rule does not match it returns an object where the value is `null` and foundMatch is `false`", () => {
+  test("if the rule does not match it returns an object with the initialValue as the value is `null` and foundMatch is `false`", () => {
     const rule = makeRule(false, "running");
-    const { value, foundMatch } = detailedRun(applyIf(passMatcher, rule))(
+    const initialValue = {};
+    const [, { value, foundMatch }] = detailedRun(applyIf(passMatcher, rule))(
       null,
-      "i am "
+      {}
     );
-    expect(value).toEqual(null);
+    expect(value).toEqual(initialValue);
     expect(foundMatch).toEqual(false);
   });
 
   test("if the rule matched it returns an object where the value is set and foundMatch is `true`", () => {
     const rule = makeRule(true, "running");
-    const { value, foundMatch } = detailedRun(applyIf(passMatcher, rule))(
+    const [, { value, foundMatch }] = detailedRun(applyIf(passMatcher, rule))(
       null,
       "i am "
     );

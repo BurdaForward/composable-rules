@@ -152,12 +152,6 @@ const runChainOfRules = (rules, facts, state) => {
     : state;
 };
 
-const run = curryToArity((rule, facts, initialValue) => {
-  const state = { foundMatch: false, value: initialValue };
-  const { value } = runHelp(rule, facts, state);
-  return value;
-}, 3);
-
 // like run but with a more detailed return value
 // Instead of the plain value it returns an object with the the following shape:
 //    { value: <value>, foundMatch: <> }
@@ -167,8 +161,17 @@ const run = curryToArity((rule, facts, initialValue) => {
 //    - foundMatch: is a boolean which indicates whether any rule in this run matched
 const detailedRun = curryToArity((rule, facts, initialValue) => {
   const state = { foundMatch: false, value: initialValue };
-  const result = runHelp(rule, facts, state);
-  return result.foundMatch ? result : { value: null, foundMatch: false };
+  try {
+    const result = runHelp(rule, facts, state);
+    return [null, result];
+  } catch (err) {
+    return [err, null];
+  }
+}, 3);
+
+const run = curryToArity((rule, facts, initialValue) => {
+  const [err, { value }] = detailedRun(rule, facts, initialValue);
+  return [err, value];
 }, 3);
 
 export {
