@@ -351,6 +351,31 @@ describe("detailedRun", () => {
     expect(foundMatch).toEqual(true);
   });
 
+  describe("error handling", () => {
+    test("returns a tuple with an error as the first item when things crash", () => {
+      const boomError = new Error("BOOM!");
+      const rule = {
+        matcher: passMatcher,
+        action: () => {
+          throw boomError;
+        },
+      };
+      const [err, result] = detailedRun(rule)(null, "i am ");
+      expect(err).toEqual(boomError);
+      expect(result).toBe(null);
+    });
+
+    test("returns a tuple with no error but a result as the second item when things don't crash", () => {
+      const rule = {
+        matcher: passMatcher,
+        action: () => "stuff",
+      };
+      const [err, result] = detailedRun(rule)(null, "i am ");
+      expect(err).toBe(null);
+      expect(result).toEqual({ value: "stuff", foundMatch: true });
+    });
+  });
+
   describe("with very deep nested rules", () => {
     const transformRule = (rule) => transformOutput((x) => x, rule);
     const rule = Array.from({ length: 10000 }).reduce(
