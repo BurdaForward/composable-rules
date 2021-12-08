@@ -133,7 +133,11 @@ const fruitRule = applyAll([discountApplesRule, lemonadeRule, tropicalRule]);
 
 // 3. run your rules like this:
 const facts = { fruitsInStock, currentDate: new Date() };
-const specialOffers = run(fruitRule, facts, []);
+const [error, specialOffers] = run(fruitRule, facts, []);
+
+if (error) {
+  // handle error
+}
 console.log(specialOffers)
 // logs [{ specialOffer: "Get your lemonade!" }, { specialOffer: "Aloha. Tropical triple!" }]
 ```
@@ -185,7 +189,7 @@ const facts = {
 // this only creates a new rule and doesn't run it yet
 const combinedRule  = applyAll([myRule, anotherRule]);
 // run the rule on some data
-const manipulatedUrl = run(
+const [error, manipulatedUrl] = run(
   combinedRule,
   facts,
   deeplink // the initial url
@@ -195,7 +199,7 @@ const manipulatedUrl = run(
 // this only creates a new rule and doesn't run the rule yet
 const combinedRule  = applyFirst([myRule, anotherRule]);
 // run the rule on some data, will return the rewritten URL
-const manipulatedUrl = run(
+const [error, manipulatedUrl] = run(
   combinedRule,
   facts,
   deeplink
@@ -210,6 +214,38 @@ const combinedRule  = applyFirst([
 ]);
 ```
 
+### Error Handling
+
+Since `composable-rules` executes some user-written functions on your behalf
+there is a possibility of errors being thrown when rules are run.
+
+So when running rules a tuple is always returned where the first value is an `error`
+if anything was thrown or `null` otherwise. You can check for errors like this
+(try catch is not needed).
+
+```javascript
+import { run, detailedRun } from '@burdaforward/composable-rules';
+
+const [error, value] = run(rule, facts, initialValue);
+
+if (error) {
+  // something crashed!
+  // handle the error
+}
+
+// Success!
+// work with the value
+```
+
+You can also ignore the error like this if it is not relevant to you.
+
+```javascript
+import { run, detailedRun } from '@burdaforward/composable-rules';
+
+const [, value] = run(rule, facts, initialValue);
+// work with the value
+```
+
 #### A note on testing
 
 Since rules are just simple input/output logic, testing them is a breeze. At
@@ -218,7 +254,7 @@ quick and easy.
 
 ```javascript
 test('this rule does what I want', () => {
-  const output = run(myRule, facts, initialValue);
+  const [, output] = run(myRule, facts, initialValue);
   expect(output).toEqual(expectedOutput)
 })
 ```
@@ -280,8 +316,8 @@ import * as rules from 'https://unpkg.com/@burdaforward/composable-rules@1.0.0/d
 - `applyChain`: Takes `rules` and combines them so that when run, only rules will be run as long as their matcher returns `true`. As soon as a rule does not match it it stops. It returns the modified value, in our case the modified URL.
 
 **Running rules**
-- `run`: Takes a `rule`, `facts` and an intial `value` and runs the rule. It returns the modified value, in our case the modified URL. If no rule matches the retuned value is the original input value.
-- `detailedRun`: Like `run` but with a more detailed output and different default value. Takes a `rule`, `facts` and an intial `value` and runs the rule. It returns an object which looks like this: `{ value: <value>, foundMatch: boolean }`. The value will the modified value, in our case the modified URL or `null` when no rule is matched. `foundMatch` is a boolean indicating if any rule matched.
+- `run`: Takes a `rule`, `facts` and an intial `value` and runs the rule. It returns a tuple like `[error, modifiedValue]`, in our case the modified URL. If no errors are throws the `error` will be null. If no rule matches the returned value is the original input value.
+- `detailedRun`: Like `run` but with a more detailed output and different default value. Takes a `rule`, `facts` and an intial `value` and runs the rule. It returns a tuple like `[error, { value: <value>, foundMatch: bool }]`. The value will the modified value, in our case the modified URL or the original URL when no rule is matched. `foundMatch` is a boolean indicating if any rule matched.
 
 ## Contributing
 
