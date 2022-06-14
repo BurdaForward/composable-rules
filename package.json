@@ -41,8 +41,8 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.24.0",
     "eslint-plugin-prettier": "^4.0.0",
-    "jest": "^27.0.6",
-    "microbundle": "^0.14.2",
+    "jest": "^28.1.1",
+    "microbundle": "^0.15.0",
     "prettier": "^2.3.2"
   }
 }
