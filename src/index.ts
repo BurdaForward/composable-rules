@@ -1,4 +1,20 @@
-import curryToArity from "./util.js";
+import curryToArity from "./util";
+
+type Rule = {
+  matcher: Function;
+  action: Function;
+  type?: string;
+  childRule?: Rule;
+  rule?: Rule;
+  rules?: Rule[];
+  mapper?: Function;
+  transformer?: Function;
+};
+
+type RuleResult = {
+  foundMatch: boolean;
+  value: any;
+};
 
 /* Small library for combining matching functions in a reusable and
  * readable way
@@ -12,12 +28,13 @@ import curryToArity from "./util.js";
  */
 const always = () => true;
 
-const not = (matcher) => (facts, value) => !matcher(facts, value);
+const not = (matcher: Function) => (facts: object, value: any) =>
+  !matcher(facts, value);
 
-const one = (matchers) => (facts, value) =>
+const one = (matchers: Function[]) => (facts: object, value: any) =>
   matchers.some((check) => check(facts, value));
 
-const all = (matchers) => (facts, value) =>
+const all = (matchers: Function[]) => (facts: object, value: any) =>
   matchers.every((check) => check(facts, value));
 
 /* COMBINING AND ENHANCING RULES
@@ -31,7 +48,7 @@ const all = (matchers) => (facts, value) =>
 // changes will not leak outside of the current rule
 // example:
 //   injectFacts(oldFacts => ({ ...oldFacts, newProp: '42' }), rule)
-const injectFacts = (mapper, rule) => ({
+const injectFacts = (mapper: Function, rule: Rule) => ({
   type: "injected",
   mapper,
   childRule: rule,
@@ -41,7 +58,7 @@ const injectFacts = (mapper, rule) => ({
 // the matcher matches.
 // example:
 //   transformOutput((value) => value + 42, rule)
-const transformOutput = (fn, rule) => ({
+const transformOutput = (fn: Function, rule: Rule) => ({
   type: "transformed",
   transformer: fn,
   rule,
@@ -49,7 +66,7 @@ const transformOutput = (fn, rule) => ({
 
 // combine a list of rules into a new rule where, once executed, all rules with
 // passing matcher are run in order
-const applyIf = (matcher, rule) => ({
+const applyIf = (matcher: Function, rule: Rule) => ({
   type: "if",
   matcher,
   rule,
@@ -57,21 +74,21 @@ const applyIf = (matcher, rule) => ({
 
 // combine a list of rules into a new rule where, once executed, all rules with
 // passing matcher are run in order
-const applyAll = (rules) => ({
+const applyAll = (rules: Rule[]) => ({
   type: "all",
   rules,
 });
 
 // combine a list of rules into a new rule where, once executed, rules are run
 // in order until the first matcher matches
-const applyFirst = (rules) => ({
+const applyFirst = (rules: Rule[]) => ({
   type: "first",
   rules,
 });
 
 // combine a list of rules into a new rule, where rules are executed as long
 // as the previous rule matched
-const applyChain = (rules) => ({
+const applyChain = (rules: Rule[]) => ({
   type: "chain",
   rules,
 });
@@ -86,32 +103,32 @@ const applyChain = (rules) => ({
 // for "injected" or "transformed" rules: they count as matched when the contained rule matches
 // for "all" or "first" rules: at least one matcher needs to have matched
 // for simple rules the matcher needs to have matched
-const runHelp = (rule, facts, state) => {
+const runHelp = (rule: Rule, facts: object, state: RuleResult): RuleResult => {
   switch (rule.type) {
     case "injected":
-      return runHelp(rule.childRule, rule.mapper(facts), state);
+      return runHelp(rule.childRule!, rule.mapper!(facts), state);
     case "transformed": {
-      const { foundMatch, value } = runHelp(rule.rule, facts, state);
+      const { foundMatch, value } = runHelp(rule.rule!, facts, state);
       return {
         foundMatch,
-        value: foundMatch ? rule.transformer(value) : value,
+        value: foundMatch ? rule.transformer!(value) : value,
       };
     }
     case "if": {
-      const subRule = rule.rule;
+      const subRule = rule.rule!;
       return rule.matcher(facts, state.value)
         ? runHelp(subRule, facts, state)
         : { foundMatch: false, value: state.value };
     }
     case "all":
-      // eslint-disable-next-line no-use-before-define
-      return runAllMatchingRules(rule.rules, facts, state);
+      // eslint-disable-next-line @typescript-eslint/no-use-before-define
+      return runAllMatchingRules(rule.rules!, facts, state);
     case "first":
-      // eslint-disable-next-line no-use-before-define
-      return runFirstMatchingRule(rule.rules, facts, state);
+      // eslint-disable-next-line @typescript-eslint/no-use-before-define
+      return runFirstMatchingRule(rule.rules!, facts, state);
     case "chain":
-      // eslint-disable-next-line no-use-before-define
-      return runChainOfRules(rule.rules, facts, state);
+      // eslint-disable-next-line @typescript-eslint/no-use-before-define
+      return runChainOfRules(rule.rules!, facts, state);
     default:
       return rule.matcher(facts, state.value)
         ? { foundMatch: true, value: rule.action(facts, state.value) }
@@ -119,8 +136,12 @@ const runHelp = (rule, facts, state) => {
   }
 };
 
-const runAllMatchingRules = (rules, facts, state) => {
-  const reducer = (currentState, currentRule) => {
+const runAllMatchingRules = (
+  rules: Rule[],
+  facts: object,
+  state: RuleResult
+): RuleResult => {
+  const reducer = (currentState: RuleResult, currentRule: Rule) => {
     const newState = runHelp(currentRule, facts, currentState);
     return {
       foundMatch: currentState.foundMatch || newState.foundMatch,
@@ -130,7 +151,11 @@ const runAllMatchingRules = (rules, facts, state) => {
   return rules.reduce(reducer, state);
 };
 
-const runFirstMatchingRule = (rules, facts, state) => {
+const runFirstMatchingRule = (
+  rules: Rule[],
+  facts: object,
+  state: RuleResult
+): RuleResult => {
   const [nextRule, ...remainingRules] = rules;
   if (!nextRule) {
     return state;
@@ -141,7 +166,11 @@ const runFirstMatchingRule = (rules, facts, state) => {
     : runFirstMatchingRule(remainingRules, facts, state);
 };
 
-const runChainOfRules = (rules, facts, state) => {
+const runChainOfRules = (
+  rules: Rule[],
+  facts: object,
+  state: RuleResult
+): RuleResult => {
   const [nextRule, ...remainingRules] = rules;
   if (!nextRule) {
     return state;
@@ -159,17 +188,20 @@ const runChainOfRules = (rules, facts, state) => {
 //        note that unlike `run` this used `null` instead of the orginal value
 //        when no rule matches
 //    - foundMatch: is a boolean which indicates whether any rule in this run matched
-const detailedRun = curryToArity((rule, facts, initialValue) => {
-  const state = { foundMatch: false, value: initialValue };
-  try {
-    const result = runHelp(rule, facts, state);
-    return [null, result];
-  } catch (err) {
-    return [err, null];
-  }
-}, 3);
+const detailedRun = curryToArity(
+  (rule: Rule, facts: object, initialValue: any) => {
+    const state = { foundMatch: false, value: initialValue };
+    try {
+      const result = runHelp(rule, facts, state);
+      return [null, result];
+    } catch (err) {
+      return [err, null];
+    }
+  },
+  3
+);
 
-const run = curryToArity((rule, facts, initialValue) => {
+const run = curryToArity((rule: Rule, facts: object, initialValue: any) => {
   const [err, { value }] = detailedRun(rule, facts, initialValue);
   return [err, value];
 }, 3);

@@ -1,7 +1,7 @@
-import curryToArity from "./util.js";
+import curryToArity from "./util";
 
 describe("curryToArity", () => {
-  const func = (a, b, c) => a + b + c;
+  const func = (a: number, b: number, c: number) => a + b + c;
   const curriedFunc = curryToArity(func, 3);
 
   test("can curry a function to arity 3", () => {

@@ -1,17 +1,17 @@
 import {
   all,
-  one,
-  injectFacts,
-  applyIf,
-  applyAll,
-  applyFirst,
-  applyChain,
-  transformOutput,
-  run,
-  detailedRun,
-  not,
   always,
-} from "./index.js";
+  applyAll,
+  applyChain,
+  applyFirst,
+  applyIf,
+  detailedRun,
+  injectFacts,
+  not,
+  one,
+  run,
+  transformOutput,
+} from "./index";
 
 const passMatcher = () => true;
 const failMatcher = () => false;

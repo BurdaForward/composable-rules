@@ -1,8 +1,8 @@
 // curry a function to a specified arity
-const curryToArity = (fn, arity) => {
+const curryToArity = (fn: Function, arity: number) => {
   const resolver =
-    (...args) =>
-    (...innerArgs) => {
+    (...args: any[]) =>
+    (...innerArgs: any[]) => {
       // make sure the function won't return functions endlessly when called with no arguments
       const newArgs =
         arity !== 0 && innerArgs.length === 0 ? [undefined] : innerArgs;
