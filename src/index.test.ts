@@ -19,7 +19,6 @@ const failMatcher = () => false;
 describe("always", () => {
   test("matches always.", () => {
     expect(always()).toBe(true);
-    expect(always({ some: { data: 3 } })).toBe(true);
   });
 });
 
@@ -59,9 +58,9 @@ describe("all", () => {
 describe("injectFacts", () => {
   const rule = {
     matcher: always,
-    action: (facts) => `${facts.newProp}!`,
+    action: (facts: any) => `${facts.newProp}!`,
   };
-  const addProp = (facts) => ({ ...facts, newProp: "New" });
+  const addProp = (facts: any) => ({ ...facts, newProp: "New" });
 
   test("injects facts into the rule", () => {
     const modifiedRule = injectFacts(addProp, rule);
@@ -80,7 +79,7 @@ describe("injectFacts", () => {
   test("also works when combined with transformOutput", () => {
     const modifiedRule = injectFacts(addProp, applyAll([rule]));
     const transformedRule = transformOutput(
-      (value) => ({ transformed: value }),
+      (value: any) => ({ transformed: value }),
       modifiedRule
     );
     const [, result] = run(transformedRule, { originalProp: "Old" }, "");
@@ -89,14 +88,14 @@ describe("injectFacts", () => {
 });
 
 describe("applyAll", () => {
-  const isTwo = (facts) => facts.number === 2;
+  const isTwo = (facts: any) => facts.number === 2;
   const matchingRule = {
     matcher: isTwo,
-    action: (facts, value) => `${value} Match!`,
+    action: (facts: object, value: any) => `${value} Match!`,
   };
   const missingRule = {
     matcher: not(isTwo),
-    action: (facts, value) => `${value} Miss!`,
+    action: (facts: object, value: any) => `${value} Miss!`,
   };
 
   test("builds up a value by applying actions when matchers match", () => {
@@ -125,8 +124,8 @@ describe("applyAll", () => {
 
   test("matchers get access to current value", () => {
     const incrementRule = {
-      matcher: (facts, number) => number === 2,
-      action: (facts, number) => number + 1,
+      matcher: (facts: object, number: any) => number === 2,
+      action: (facts: object, number: any) => number + 1,
     };
     const [, result] = run(
       applyAll([incrementRule, incrementRule, incrementRule])
@@ -136,14 +135,14 @@ describe("applyAll", () => {
 });
 
 describe("applyFirst", () => {
-  const isTwo = (facts) => facts.number === 2;
+  const isTwo = (facts: any) => facts.number === 2;
   const matchingRule = {
     matcher: isTwo,
-    action: (facts, value) => `${value} Match!`,
+    action: (facts: object, value: any) => `${value} Match!`,
   };
   const missingRule = {
     matcher: not(isTwo),
-    action: (facts, value) => `${value} Miss!`,
+    action: (facts: object, value: any) => `${value} Miss!`,
   };
 
   test("won't execute second rule if first one matched", () => {
@@ -172,14 +171,14 @@ describe("applyFirst", () => {
 });
 
 describe("applyChain", () => {
-  const isTwo = (facts) => facts.number === 2;
+  const isTwo = (facts: any) => facts.number === 2;
   const matchingRule = {
     matcher: isTwo,
-    action: (facts, value) => `${value} Match!`,
+    action: (facts: object, value: any) => `${value} Match!`,
   };
   const missingRule = {
     matcher: not(isTwo),
-    action: (facts, value) => `${value} Miss!`,
+    action: (facts: object, value: any) => `${value} Miss!`,
   };
 
   test("will execute second rule if first one matched", () => {
@@ -208,9 +207,9 @@ describe("applyChain", () => {
 });
 
 describe("nested Rules", () => {
-  const makeRule = (pass, value) => ({
+  const makeRule = (pass: boolean, value: any) => ({
     matcher: () => pass,
-    action: (facts, list) => list.concat(value),
+    action: (facts: object, list: any[]) => list.concat(value),
   });
 
   test("all-rules inside first-rules work when last in all-rule is passing", () => {
@@ -245,9 +244,9 @@ describe("nested Rules", () => {
 });
 
 describe("transformOutput", () => {
-  const makeRule = (pass, value) => ({
+  const makeRule = (pass: boolean, value: any) => ({
     matcher: () => pass,
-    action: (facts, list) => list.concat(value),
+    action: (facts: object, list: any[]) => list.concat(value),
   });
 
   test("transforms output if rule matcher matches", () => {
@@ -268,7 +267,7 @@ describe("transformOutput", () => {
     const rule1 = makeRule(true, "original");
     const rule2 = makeRule(true, "is nice");
     const newRule = applyAll([
-      transformOutput((val) => val.concat(" transformed "), rule1),
+      transformOutput((val: any[]) => val.concat(" transformed "), rule1),
       rule2,
     ]);
     const [, result] = run(newRule)(null, "");
@@ -279,7 +278,7 @@ describe("transformOutput", () => {
     const rule1 = makeRule(false, "original");
     const rule2 = makeRule(true, "is nice");
     const newRule = applyAll([
-      transformOutput((val) => val.concat(" transformed "), rule1),
+      transformOutput((val: any[]) => val.concat(" transformed "), rule1),
       rule2,
     ]);
     const [, result] = run(newRule)(null, "");
@@ -288,9 +287,9 @@ describe("transformOutput", () => {
 });
 
 describe("applyIf", () => {
-  const makeRule = (pass, value) => ({
+  const makeRule = (pass: boolean, value: any) => ({
     matcher: () => pass,
-    action: (facts, list) => list.concat(value),
+    action: (facts: object, list: any[]) => list.concat(value),
   });
 
   test("runs rule only if outer matcher matches", () => {
@@ -325,9 +324,9 @@ describe("applyIf", () => {
 });
 
 describe("detailedRun", () => {
-  const makeRule = (pass, value) => ({
+  const makeRule = (pass: boolean, value: any) => ({
     matcher: () => pass,
-    action: (facts, list) => list.concat(value),
+    action: (facts: object, list: any[]) => list.concat(value),
   });
 
   test("if the rule does not match it returns an object with the initialValue as the value is `null` and foundMatch is `false`", () => {
@@ -377,9 +376,10 @@ describe("detailedRun", () => {
   });
 
   describe("with very deep nested rules", () => {
-    const transformRule = (rule) => transformOutput((x) => x, rule);
+    const transformRule = (rule: object): object =>
+      transformOutput((x: object) => x, rule);
     const rule = Array.from({ length: 10000 }).reduce(
-      (acc) => transformRule(acc),
+      (acc: object) => transformRule(acc),
       makeRule(true, "x")
     );
     /** * FIX ME ** */

@@ -1,8 +1,8 @@
 import curryToArity from "./util";
 
 type Rule = {
-  matcher: Function;
-  action: Function;
+  matcher?: Function;
+  action?: Function;
   type?: string;
   childRule?: Rule;
   rule?: Rule;
@@ -26,15 +26,17 @@ type RuleResult = {
  * in order to know whether the rule's action should be applied.
  * Here are some functions to combine matching functions.
  */
-const always = () => true;
 
-const not = (matcher: Function) => (facts: object, value: any) =>
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const always = (...args: any[]) => true;
+
+const not = (matcher: Function) => (facts?: object, value?: any) =>
   !matcher(facts, value);
 
-const one = (matchers: Function[]) => (facts: object, value: any) =>
+const one = (matchers: Function[]) => (facts?: object, value?: any) =>
   matchers.some((check) => check(facts, value));
 
-const all = (matchers: Function[]) => (facts: object, value: any) =>
+const all = (matchers: Function[]) => (facts?: object, value?: any) =>
   matchers.every((check) => check(facts, value));
 
 /* COMBINING AND ENHANCING RULES
@@ -116,7 +118,7 @@ const runHelp = (rule: Rule, facts: object, state: RuleResult): RuleResult => {
     }
     case "if": {
       const subRule = rule.rule!;
-      return rule.matcher(facts, state.value)
+      return rule.matcher!(facts, state.value)
         ? runHelp(subRule, facts, state)
         : { foundMatch: false, value: state.value };
     }
@@ -130,8 +132,8 @@ const runHelp = (rule: Rule, facts: object, state: RuleResult): RuleResult => {
       // eslint-disable-next-line @typescript-eslint/no-use-before-define
       return runChainOfRules(rule.rules!, facts, state);
     default:
-      return rule.matcher(facts, state.value)
-        ? { foundMatch: true, value: rule.action(facts, state.value) }
+      return rule.matcher!(facts, state.value)
+        ? { foundMatch: true, value: rule.action!(facts, state.value) }
         : { foundMatch: false, value: state.value };
   }
 };
