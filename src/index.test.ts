@@ -19,6 +19,7 @@ const failMatcher = () => false;
 describe("always", () => {
   test("matches always.", () => {
     expect(always()).toBe(true);
+    expect(always({ some: { data: 3 } })).toBe(true);
   });
 });
 
