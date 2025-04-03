@@ -6,5 +6,6 @@
         "outDir": "dist/esm",
         "declaration": true,
         "declarationDir": "dist/types",
+        "removeComments": true
     },
 }
