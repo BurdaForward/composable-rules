@@ -153,29 +153,29 @@ const applyChain = (rules: Rule[]): ChainRule => ({
 const runHelp = (rule: Rule, facts: object, state: RuleResult): RuleResult => {
   switch (rule.type) {
     case "injected":
-      return runHelp(rule.childRule!, rule.mapper!(facts), state);
+      return runHelp(rule.childRule, rule.mapper(facts), state);
     case "transformed": {
-      const { foundMatch, value } = runHelp(rule.rule!, facts, state);
+      const { foundMatch, value } = runHelp(rule.rule, facts, state);
       return {
         foundMatch,
-        value: foundMatch ? rule.transformer!(value) : value,
+        value: foundMatch ? rule.transformer(value) : value,
       };
     }
     case "if": {
-      const subRule = rule.rule!;
-      return rule.matcher!(facts, state.value)
+      const subRule = rule.rule;
+      return rule.matcher(facts, state.value)
         ? runHelp(subRule, facts, state)
         : { foundMatch: false, value: state.value };
     }
     case "all":
       // eslint-disable-next-line @typescript-eslint/no-use-before-define
-      return runAllMatchingRules(rule.rules!, facts, state);
+      return runAllMatchingRules(rule.rules, facts, state);
     case "first":
       // eslint-disable-next-line @typescript-eslint/no-use-before-define
-      return runFirstMatchingRule(rule.rules!, facts, state);
+      return runFirstMatchingRule(rule.rules, facts, state);
     case "chain":
       // eslint-disable-next-line @typescript-eslint/no-use-before-define
-      return runChainOfRules(rule.rules!, facts, state);
+      return runChainOfRules(rule.rules, facts, state);
     default:
       return rule.matcher(facts, state.value)
         ? { foundMatch: true, value: rule.action(facts, state.value) }
