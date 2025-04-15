@@ -377,7 +377,7 @@ describe("detailedRun", () => {
   });
 
   describe("with very deep nested rules", () => {
-    const transformRule = (rule: object): object =>
+    const transformRule = (rule: any): any =>
       transformOutput((x: object) => x, rule);
     const rule = Array.from({ length: 10000 }).reduce(
       (acc: object) => transformRule(acc),

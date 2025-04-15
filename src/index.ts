@@ -1,19 +1,64 @@
 import curryToArity from "./util";
 
-type Rule = {
-  matcher?: Function;
-  action?: Function;
-  type?: string;
-  childRule?: Rule;
-  rule?: Rule;
-  rules?: Rule[];
-  mapper?: Function;
-  transformer?: Function;
+type Rule<Facts = any, Result = any, Input = any> =
+  | PlainRule<Facts, Result, Input>
+  | InjectedRule<Facts, Result, Input>
+  | TransformedRule<Facts, Result, Input>
+  | FirstRule<Facts, Result, Input>
+  | AllRule<Facts, Result, Input>
+  | ChainRule<Facts, Result, Input>
+  | IfRule<Facts, Result, Input>;
+
+type Matcher<Facts = any, Input = any> = (
+  facts?: Facts,
+  input?: Input
+) => boolean;
+type Mapper<Facts = any> = (facts?: Facts) => Facts;
+type Action<Facts, Result, Input> = (facts?: Facts, input?: Input) => Result;
+type Transformer = Function;
+
+type PlainRule<Facts = any, Result = any, Input = any> = {
+  type?: "plain";
+  matcher: Matcher<Facts, Input>;
+  action: Action<Facts, Result, Input>;
 };
 
-type RuleResult = {
+type InjectedRule<Facts = any, Result = any, Input = any> = {
+  type: "injected";
+  mapper: Mapper<Facts>;
+  childRule: Rule<Facts, Result, Input>;
+};
+
+type TransformedRule<Facts = any, Result = any, Input = any> = {
+  type: "transformed";
+  transformer: Transformer;
+  rule: Rule<Facts, Result, Input>;
+};
+
+type IfRule<Facts = any, Result = any, Input = any> = {
+  type: "if";
+  matcher: Matcher;
+  rule: Rule<Facts, Result, Input>;
+};
+
+type AllRule<Facts = any, Result = any, Input = any> = {
+  type: "all";
+  rules: Rule<Facts, Result, Input>[];
+};
+
+type FirstRule<Facts = any, Result = any, Input = any> = {
+  type: "first";
+  rules: Rule<Facts, Result, Input>[];
+};
+
+type ChainRule<Facts = any, Result = any, Input = any> = {
+  type: "chain";
+  rules: Rule<Facts, Result, Input>[];
+};
+
+type RuleResult<Value = any> = {
   foundMatch: boolean;
-  value: any;
+  value: Value;
 };
 
 /* Small library for combining matching functions in a reusable and
@@ -30,13 +75,13 @@ type RuleResult = {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const always = (...args: any[]) => true;
 
-const not = (matcher: Function) => (facts?: object, value?: any) =>
+const not = (matcher: Matcher) => (facts?: any, value?: any) =>
   !matcher(facts, value);
 
-const one = (matchers: Function[]) => (facts?: object, value?: any) =>
+const one = (matchers: Matcher[]) => (facts?: any, value?: any) =>
   matchers.some((check) => check(facts, value));
 
-const all = (matchers: Function[]) => (facts?: object, value?: any) =>
+const all = (matchers: Matcher[]) => (facts?: any, value?: any) =>
   matchers.every((check) => check(facts, value));
 
 /* COMBINING AND ENHANCING RULES
@@ -50,7 +95,7 @@ const all = (matchers: Function[]) => (facts?: object, value?: any) =>
 // changes will not leak outside of the current rule
 // example:
 //   injectFacts(oldFacts => ({ ...oldFacts, newProp: '42' }), rule)
-const injectFacts = (mapper: Function, rule: Rule) => ({
+const injectFacts = (mapper: Mapper, rule: Rule): InjectedRule => ({
   type: "injected",
   mapper,
   childRule: rule,
@@ -60,7 +105,7 @@ const injectFacts = (mapper: Function, rule: Rule) => ({
 // the matcher matches.
 // example:
 //   transformOutput((value) => value + 42, rule)
-const transformOutput = (fn: Function, rule: Rule) => ({
+const transformOutput = (fn: Transformer, rule: Rule): TransformedRule => ({
   type: "transformed",
   transformer: fn,
   rule,
@@ -68,7 +113,7 @@ const transformOutput = (fn: Function, rule: Rule) => ({
 
 // combine a list of rules into a new rule where, once executed, all rules with
 // passing matcher are run in order
-const applyIf = (matcher: Function, rule: Rule) => ({
+const applyIf = (matcher: Matcher, rule: Rule): IfRule => ({
   type: "if",
   matcher,
   rule,
@@ -76,21 +121,21 @@ const applyIf = (matcher: Function, rule: Rule) => ({
 
 // combine a list of rules into a new rule where, once executed, all rules with
 // passing matcher are run in order
-const applyAll = (rules: Rule[]) => ({
+const applyAll = (rules: Rule[]): AllRule => ({
   type: "all",
   rules,
 });
 
 // combine a list of rules into a new rule where, once executed, rules are run
 // in order until the first matcher matches
-const applyFirst = (rules: Rule[]) => ({
+const applyFirst = (rules: Rule[]): FirstRule => ({
   type: "first",
   rules,
 });
 
 // combine a list of rules into a new rule, where rules are executed as long
 // as the previous rule matched
-const applyChain = (rules: Rule[]) => ({
+const applyChain = (rules: Rule[]): ChainRule => ({
   type: "chain",
   rules,
 });
@@ -132,8 +177,8 @@ const runHelp = (rule: Rule, facts: object, state: RuleResult): RuleResult => {
       // eslint-disable-next-line @typescript-eslint/no-use-before-define
       return runChainOfRules(rule.rules!, facts, state);
     default:
-      return rule.matcher!(facts, state.value)
-        ? { foundMatch: true, value: rule.action!(facts, state.value) }
+      return rule.matcher(facts, state.value)
+        ? { foundMatch: true, value: rule.action(facts, state.value) }
         : { foundMatch: false, value: state.value };
   }
 };
