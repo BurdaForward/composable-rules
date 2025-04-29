@@ -10,8 +10,8 @@
     ".": {
       "require": "./dist/index.cjs",
       "import": "./dist/index.js",
-      "default": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     }
   },
   "scripts": {
@@ -19,6 +19,7 @@
     "release": "npm run build && npm publish",
     "lint": "eslint src",
     "lint:fix": "npm run lint -- --fix",
+    "type-check": "tsc --noEmit",
     "test": "jest src",
     "prepublishOnly": "npm run build",
     "compile": "tsc"
